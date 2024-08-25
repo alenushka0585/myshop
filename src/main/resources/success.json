@@ -1,0 +1,11 @@
+{
+  "operation": "created",
+  "result": [
+    {
+      "id": 7,
+      "name": "Mars chocolate bar",
+      "price": 2.31,
+      "active": true
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "error": {
+    "description": "something went wrong",
+    "code": 311,
+    "message": "Illegal argument exception, no product with an id=33"
+  }
+}
