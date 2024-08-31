@@ -23,6 +23,8 @@ insert into  COMMENTS (CONTENT, PRODUCT_ID) values ('Another useful comment', 2)
 
 insert into  CARDS (NAME) values ('My cristmas products');
 
+insert into  USERS (PASSWORD, LOGINS) values ('123', 'stas');
+
 merge into  product_card (PRODUCT_ID, CARD_ID) KEY(PRODUCT_ID, CARD_ID) values (1,1);
 merge into  product_card (PRODUCT_ID, CARD_ID) KEY(PRODUCT_ID, CARD_ID) values (2,1);
 merge into  product_card (PRODUCT_ID, CARD_ID) KEY(PRODUCT_ID, CARD_ID) values (3,1);

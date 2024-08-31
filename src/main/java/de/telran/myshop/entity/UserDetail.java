@@ -1,5 +1,6 @@
 package de.telran.myshop.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,5 +29,6 @@ public class UserDetail {
             (name = "user_id", // название колонки внешнего ключа)
                     referencedColumnName = "userId"
             )
+    @JsonIgnore
     private User user;
 }
