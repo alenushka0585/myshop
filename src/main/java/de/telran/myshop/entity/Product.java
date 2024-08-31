@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 // ORM - Object Relational Mapping -
 // как поля класса будут храниться в колонках таблицы базы данных
@@ -37,4 +39,44 @@ public class Product {
     @Column(name = "PRODUCT_IS_ACTIVE")
     @Schema(name = "Product active", example = "false", description = "Product is actively sold")
     private boolean isActive;
+
+
+    @OneToMany(
+            mappedBy = "product"
+    )
+    private Set<Comment> comments = new HashSet<>();
+
+
+
+    @ManyToMany(
+            fetch = FetchType.LAZY, // не загружать карты вместе с продуктами
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            }
+    )
+    @JoinTable(
+            name = "product_card", //таблица-связка
+            joinColumns = {
+                    @JoinColumn(name = "product_id")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "card_id")
+            }
+    )
+    private Set<Card> cards = new HashSet<>();
+
+    public void addCard(Card card) {
+        cards.add(card); // добавляем карту к продукту
+        card.getProducts().add(this); // добавляем продукт в карту
+    }
+
+    public void removeCard(long cardId) {
+        Card card = cards.stream()
+                .filter(c -> c.getId().equals(cardId)).findFirst().orElse(null);
+        if(card != null) {
+            cards.remove(card); // удаляем карту из карт продукта
+            card.getProducts().remove(this); // удаляем продукт из карты
+        }
+    }
 }

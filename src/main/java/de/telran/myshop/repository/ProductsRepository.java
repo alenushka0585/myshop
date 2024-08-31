@@ -1,8 +1,12 @@
 package de.telran.myshop.repository;
 
 import de.telran.myshop.entity.Product;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
+import java.util.List;
 
 
 // CrudRepository - поддерживает базовые методы -
@@ -17,4 +21,25 @@ public interface ProductsRepository extends CrudRepository<Product, Long> {
 
 
     //ДЗ метод getByPrice
+    Iterable<Product> getByPrice(BigDecimal price);
+
+    //найдем все товары с ценой в диапазоне
+    // найдем все товары с ценой в диапазоне
+    @Query(
+            nativeQuery = true,
+            value = "select * from products where " +
+                    "product_price > :priceFrom and product_price < :priceTo"
+    )
+    List<Product> getProductWithPriceBetween(
+            BigDecimal priceFrom,
+            BigDecimal priceTo
+    );
+
+    // JPQL - платформенно-независимый язык запросов по мотивам sql
+    // который используется библиотекой hibernate которая лежит в основе JPA
+    // в JPQL используется название Entity  полей Entity а не колонок и таблиц БД
+    @Query("select p from Product p where p.price > :price")
+    List<Product> getProductsWithPriceGreater(
+            BigDecimal price
+    );
 }

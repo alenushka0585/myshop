@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @RestController
@@ -33,7 +34,7 @@ public class ProductsController {
     }
 
     @GetMapping("/prod/{id}")
-    public Optional<Product> getAll(
+    public Optional<Product> getAllById(
             @PathVariable(name="id",required = true)
             Long id
     ){
@@ -53,5 +54,23 @@ public class ProductsController {
             @RequestParam (name = "active") boolean active
     ){
         return repo.findByIsActive(active);
+    }
+
+    @GetMapping("/price")
+    public Iterable<Product> getByPrice(
+            @RequestParam(name = "price")BigDecimal price
+            ){
+        return repo.getByPrice(price);
+    }
+
+    // GET http://localhost:8080/priceBetween?from=1.12&to=2.33
+    // напишите метод контроллера priceBetween
+    // вызовите внутри метода контроллера repo.getProductWithPriceBetween
+    @GetMapping("/priceBetween")
+    public Iterable<Product> priceBetween(
+            @RequestParam BigDecimal from,
+            @RequestParam BigDecimal to
+    ) {
+        return repo.getProductWithPriceBetween(from, to);
     }
 }

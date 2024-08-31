@@ -1,0 +1,35 @@
+package de.telran.myshop.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.HashSet;
+import java.util.Set;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
+@Table(name = "cards")
+public class Card {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @ManyToMany(
+            fetch = FetchType.LAZY, //пока явно не обратимся к продуктам, они не будут загружаться из базы данных
+            cascade = {
+                    CascadeType.ALL, // как изменения карты должны отражаться на продукте (менять и в продукте автоматически)
+                    CascadeType.MERGE
+            },
+            mappedBy = "cards" // поле в классе Product
+    )
+    @JsonIgnore //исключить перегрузку по кругу
+    @ToString.Exclude // не использовать в генерации toString
+    @EqualsAndHashCode.Exclude // не использовать поле для equals и hashcode
+    private Set<Product> products = new HashSet<>();
+}
