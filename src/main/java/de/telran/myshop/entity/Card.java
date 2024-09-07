@@ -2,6 +2,8 @@ package de.telran.myshop.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 import java.util.HashSet;
@@ -18,6 +20,10 @@ public class Card {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //Добавьте валидацию в класс Card что name должно быть не пустым
+    // и длиной не менее 5 символов
+    @NotEmpty(message = "Card's name should not be empty")
+    @Pattern(regexp = "^.{5,}$", message = "Minimum card's name length is 5")
     private String name;
 
     @ManyToMany(
