@@ -5,6 +5,7 @@ import de.telran.myshop.repository.ProductsRepository;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -28,9 +29,14 @@ public class ProductsController {
         return repo.save(product);
     }
 
+    // GET http://localhost:8080/prod?page=2&perPage=5
     @GetMapping("/prod")
-    public Iterable<Product> getAll(){
-        return repo.findAll();
+    public Iterable<Product> getAll(
+            @RequestParam(defaultValue = "0") int page, // номер страницы
+            @RequestParam(defaultValue = "10") int perPage // сколько страниц
+    ){
+        Pageable pageable = Pageable.ofSize(perPage).withPage(page);
+        return repo.findAll(pageable);
     }
 
     @GetMapping("/prod/{id}")

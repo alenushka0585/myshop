@@ -1,7 +1,10 @@
 package de.telran.myshop.entity;
 
+import de.telran.myshop.validation.Between;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -34,6 +37,9 @@ public class Product {
 
     @Column(name = "PRODUCT_PRICE")
     @Schema(name = "Product price", example = "12.33")
+//    @Min(value = 0L, message = "Prices lower than 0 are not allowed")
+//    @Max(value = 10_000L, message = "Prices higer than 10000 are not allowed")
+    @Between(from = 0.01, to = 25.50, message = "Price must be between 0.01 and 25.50")
     private BigDecimal price;//Double не точный, BigDecimal точное - всегда использовать с ценами
 
     @Column(name = "PRODUCT_IS_ACTIVE")
@@ -45,7 +51,6 @@ public class Product {
             mappedBy = "product"
     )
     private Set<Comment> comments = new HashSet<>();
-
 
 
     @ManyToMany(
@@ -74,7 +79,7 @@ public class Product {
     public void removeCard(long cardId) {
         Card card = cards.stream()
                 .filter(c -> c.getId().equals(cardId)).findFirst().orElse(null);
-        if(card != null) {
+        if (card != null) {
             cards.remove(card); // удаляем карту из карт продукта
             card.getProducts().remove(this); // удаляем продукт из карты
         }

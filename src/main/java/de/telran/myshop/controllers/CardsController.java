@@ -1,8 +1,11 @@
 package de.telran.myshop.controllers;
 
 import de.telran.myshop.entity.Card;
+import de.telran.myshop.entity.Comment;
 import de.telran.myshop.entity.Product;
+import de.telran.myshop.errors.CardsException;
 import de.telran.myshop.repository.CardsRepository;
+import de.telran.myshop.repository.CommentsRepository;
 import de.telran.myshop.repository.ProductsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class CardsController {
@@ -18,6 +22,9 @@ public class CardsController {
 
     @Autowired
     private CardsRepository cardsRepository;
+
+    @Autowired
+    private CommentsRepository commentsRepository;
 
     // GET http://localhost:8080/cards
     @GetMapping("/cards")
@@ -32,7 +39,7 @@ public class CardsController {
             @PathVariable Long cardId){
         Card card = cardsRepository.findById(cardId).orElse(null);
         if (card == null) {
-            throw new IllegalArgumentException("No Card with id " + cardId);
+            throw new CardsException("No Card with id " + cardId, cardId);
         }
         return card;
     }
@@ -45,7 +52,7 @@ public class CardsController {
     {
         Card card = cardsRepository.findById(cardId).orElse(null);
         if (card == null) {
-            throw new IllegalArgumentException("No card with id " + cardId);
+            throw new CardsException("No Card with id " + cardId, cardId);
         }
         return card.getProducts();
     }
@@ -64,7 +71,7 @@ public class CardsController {
         Long cardId = cardRequest.getId();
         if(cardId != null && cardId != 0L) {
             Card existingCard = cardsRepository.findById(cardId).orElseThrow(
-                    () -> new IllegalArgumentException("Card with id " + cardId + " not found")
+                    () -> new CardsException("Card with id " + cardId + " not found", cardId)
             );
             product.addCard(existingCard);
             productsRepository.save(product);
@@ -81,7 +88,7 @@ public class CardsController {
     ){
         Card card = cardsRepository.findById(id).orElse(null);
         if (card == null) {
-            throw new IllegalArgumentException("Card with id " + id + " not found");
+            throw new CardsException("Card with id " + id + " not found", id);
         }
 
         card.setName(cardRequest.getName());
@@ -97,7 +104,7 @@ public class CardsController {
     ) {
         Card card = cardsRepository.findById(id).orElse(null);
         if (card == null) {
-            throw new IllegalArgumentException("Card with id " + id + " not found");
+            throw new CardsException("Card with id " + id + " not found", id);
         }
         // удалить эту карту из всех ее продуктов
         List<Product> products = new ArrayList<>(card.getProducts());
@@ -121,7 +128,7 @@ public class CardsController {
     ) {
         Card card = cardsRepository.findById(cardId).orElse(null);
         if (card == null) {
-            throw new IllegalArgumentException("Card with id " + cardId + " not found");
+            throw new CardsException("Card with id " + cardId + " not found", cardId);
         }
         Product product = productsRepository.findById(productId).orElse(null);
         if (product == null) {
@@ -132,6 +139,27 @@ public class CardsController {
         productsRepository.save(product);
 
         return ResponseEntity.noContent().build();
+    }
+
+
+    //Добавьте в CardController вызов этого метода,
+    // чтобы для указанной карты возвращались все комменты
+    // для всех ее товаров
+
+    @GetMapping("/cards/products/comments/{cardId}")
+    Iterable<Comment> findAllCommentsForAllProductsByCardId(
+            @PathVariable Long cardId){
+        Card card = cardsRepository.findById(cardId).orElseThrow(
+                () -> new CardsException("Card with id " + cardId + " is not found", cardId)
+        );
+
+        List<Product> products = new ArrayList<>(card.getProducts());
+        List<Comment> comments = new ArrayList<>();
+        products
+                .forEach(product -> commentsRepository.findByProductId(product.getId())
+                        .forEach(comments::add));
+
+        return comments;
     }
 
 
